@@ -1,0 +1,51 @@
+# 流程名称
+name: 测试
+concurrency: 10 # 并发数
+timeout: 1h # 超时时间
+env:
+  env: prod
+  app: demo_app
+  author: jimmy
+result:
+  - ChatGPTAnswer
+pipeline:
+  - task: task1
+    name: Template
+    config:
+      timeout: 100ms
+      params:
+        -
+          name: Template
+          type: literal
+          literal: 有人在提问『{{ str "question" }}』下回答『{{ str "answer" }}』，这会对提问者产生冒犯吗？请明确回答是或者不是。
+        -
+          name: OutputKey
+          type: literal
+          literal: chatGPTQuestion
+  - task: task2
+    name: ChatGPT
+    config:
+      timeout: 10s
+      params:
+        - name: Question
+          type: variable
+          variable: chatGPTQuestion
+        - name: Token
+          type: literal
+          literal: xxxxxxxxxxxxx
+    depends:
+      - task: task1
+  - task: task3
+    name: ReShareDataNode
+    config:
+      timeout: 50ms
+      params:
+        -
+          name: Data
+          type: mapping
+          mapping:
+            Answer:
+              type: literal
+              literal: ChatGPTAnswer
+    depends:
+      - task: task2
