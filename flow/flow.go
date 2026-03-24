@@ -97,13 +97,18 @@ func GetComponents() []*starriver.Component {
 	return registry.GetAllComponents()
 }
 
-func (re *RiverEngine) CronRun(spec string, pipeline starriver.Pipeline, data map[string]interface{}) {
+func (re *RiverEngine) CronRun(spec string, pipelineConf starriver.PipelineConf, data map[string]interface{}) {
 	entryID, err := re.cronClient.AddFunc(spec, func() {
+		pipeline, err := NewPipeline(pipelineConf)
+		if err != nil {
+			logrus.Errorf("[Cron] NewPipeline error %v", err)
+			return
+		}
 		dataContext := NewDataContext(context.Background(), pipeline, data)
 		result := re.Run(dataContext, pipeline)
 		dataContext.Infof("[Cron]spec=%q, pipeline=%q, data=%+v, result=%+v", spec, pipeline.GetName(), data, result)
 	})
-	logrus.Infof("[Cron]AddFunc, spec=%q, pipeline=%q, entryID=%q, err=%v", spec, pipeline.GetName(), entryID, err)
+	logrus.Infof("[Cron]AddFunc, spec=%q, pipeline=%q, entryID=%q, err=%v", spec, pipelineConf.Name, entryID, err)
 	re.cronClient.Start()
 }
 

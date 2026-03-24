@@ -29,6 +29,9 @@ func (ap *assembleParam) prepareParameter(dataContext starriver.DataContext, par
 		if err != nil {
 			return nil, err
 		}
+		if val == nil {
+			continue
+		}
 		if field := v.FieldByName(paramConfig.Name); field.CanAddr() {
 			field.Set(reflect.ValueOf(val))
 		} else {

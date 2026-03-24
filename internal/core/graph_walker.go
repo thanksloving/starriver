@@ -32,10 +32,8 @@ func (walker *GraphWalker) callback(dataContext starriver.DataContext, vertex da
 	}
 	ch := make(chan starriver.Response, 1)
 	defer func() {
-		close(ch)
 		if resp == nil {
-			helper.NewErrorResponse(fmt.Errorf("%q response is nil, unkonwn exeception", vertex.ID()))
-			return
+			resp = helper.NewErrorResponse(fmt.Errorf("%q response is nil, unkonwn exeception", vertex.ID()))
 		}
 	}()
 	if walker.serial {
@@ -43,20 +41,21 @@ func (walker *GraphWalker) callback(dataContext starriver.DataContext, vertex da
 		defer walker.lock.Unlock()
 	}
 	go func() {
+		var localResp starriver.Response
 		defer func() {
 			if r := recover(); r != nil {
-				resp = helper.NewErrorResponse(fmt.Errorf("%v", r))
+				localResp = helper.NewErrorResponse(fmt.Errorf("%v", r))
 			}
+			ch <- localResp
 		}()
 		if executable, ok := vertex.(starriver.Executable); ok {
-			resp = walker.execute(dataContext, executable)
+			localResp = walker.execute(dataContext, executable)
 		} else if _, ok := vertex.(dag.Node); ok {
 			dataContext.Debugf("AnyNode Pass, %q", vertex.ID())
-			resp = helper.NewSuccessResponse()
+			localResp = helper.NewSuccessResponse()
 		} else {
-			resp = helper.NewFatalResponse(fmt.Errorf("vertex do not support, %T", vertex))
+			localResp = helper.NewFatalResponse(fmt.Errorf("vertex do not support, %T", vertex))
 		}
-		ch <- resp
 	}()
 	select {
 	case <-dataContext.Done():

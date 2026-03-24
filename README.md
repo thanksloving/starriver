@@ -317,8 +317,8 @@ func init() {
 ```
 
 ## TODO
-- [ ] 循环支持
-- [ ] 子流程支持
+- [x] 循环支持
+- [x] 子流程支持
 
 **DAG 代码由 [hashicorp/terraform](https://github.com/hashicorp/terraform/tree/main/internal/dag)的 DAG 代码修改而来。**
 The roses in her hand, the flavor in mine.

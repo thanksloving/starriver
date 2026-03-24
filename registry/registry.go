@@ -109,8 +109,6 @@ func GetComponent(name string, namespace *string) *starriver.Component {
 	instance.lock.RLock()
 	defer instance.lock.RUnlock()
 	if namespace == nil {
-		instance.lock.RLock()
-		defer instance.lock.RUnlock()
 		return instance.defaultComponents[name]
 	}
 	if components := instance.customComponents[*namespace]; components != nil {

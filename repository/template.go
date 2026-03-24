@@ -64,7 +64,11 @@ func (tc *templateComponent) Execute(dataContext starriver.DataContext, param in
 		},
 	})
 	buf := new(bytes.Buffer)
-	if err := template.Must(t.Parse(p.Template)).Execute(buf, struct{}{}); err != nil {
+	tmpl, err := t.Parse(p.Template)
+	if err != nil {
+		return helper.NewErrorResponse(err)
+	}
+	if err := tmpl.Execute(buf, struct{}{}); err != nil {
 		return helper.NewErrorResponse(err)
 	}
 	content := buf.String()

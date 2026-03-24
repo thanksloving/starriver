@@ -485,6 +485,10 @@ func (w *Walker) waitDeps(
 	DepSatisfied:
 		for {
 			select {
+			case <-dataContext.Done():
+				// Context cancelled/timeout
+				doneCh <- false
+				return
 			case <-depCh:
 				// Dependency satisfied!
 				dataContext.Debugf("Dependency satisfied. %q -> %q", dep.ID(), v.ID())

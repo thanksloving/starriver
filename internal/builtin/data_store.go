@@ -102,7 +102,7 @@ func (sds *defaultSharedDataStore) Unmarshal(data []byte) error {
 	sds.nodeLock.Lock()
 	defer func() {
 		sds.lock.Unlock()
-		defer sds.nodeLock.Unlock()
+		sds.nodeLock.Unlock()
 	}()
 	var ds dataStore
 	if err := sds.Codec.Unmarshal(data, &ds); err != nil {

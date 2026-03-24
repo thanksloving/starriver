@@ -8,4 +8,6 @@ func init() {
 	registerJsonPath()
 	registerReShareDataNode()
 	registerChatGPT()
+	registerSubPipeline()
+	registerLoop()
 }
